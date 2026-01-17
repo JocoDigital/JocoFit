@@ -1,7 +1,9 @@
 import SwiftUI
+import AuthenticationServices
 
 struct LoginView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @Environment(\.colorScheme) private var colorScheme
     @State private var email = ""
     @State private var password = ""
     @State private var showSignUp = false
@@ -27,7 +29,44 @@ struct LoginView: View {
                     }
                     .padding(.top, 40)
 
-                    // Login Form
+                    // Continue with Apple Button
+                    VStack(spacing: 16) {
+                        SignInWithAppleButton(.continue) { request in
+                            let appleRequest = authViewModel.signInWithApple()
+                            request.requestedScopes = appleRequest.requestedScopes
+                            request.nonce = appleRequest.nonce
+                        } onCompletion: { result in
+                            Task {
+                                await authViewModel.handleAppleSignIn(result: result)
+                            }
+                        }
+                        .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
+                        .frame(height: 50)
+
+                        if let error = authViewModel.errorMessage {
+                            Text(error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
+                                .multilineTextAlignment(.center)
+                        }
+                    }
+                    .padding(.horizontal, 32)
+
+                    // Divider with "or"
+                    HStack {
+                        Rectangle()
+                            .fill(Color.secondary.opacity(0.3))
+                            .frame(height: 1)
+                        Text("or")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Rectangle()
+                            .fill(Color.secondary.opacity(0.3))
+                            .frame(height: 1)
+                    }
+                    .padding(.horizontal, 32)
+
+                    // Email Login Form
                     VStack(spacing: 16) {
                         TextField("Email", text: $email)
                             .textFieldStyle(.roundedBorder)
@@ -42,13 +81,6 @@ struct LoginView: View {
                             .textFieldStyle(.roundedBorder)
                             .textContentType(.password)
 
-                        if let error = authViewModel.errorMessage {
-                            Text(error)
-                                .font(.caption)
-                                .foregroundStyle(.red)
-                                .multilineTextAlignment(.center)
-                        }
-
                         Button {
                             Task {
                                 await authViewModel.signIn(email: email, password: password)
@@ -58,7 +90,7 @@ struct LoginView: View {
                                 ProgressView()
                                     .frame(maxWidth: .infinity)
                             } else {
-                                Text("Sign In")
+                                Text("Sign In with Email")
                                     .frame(maxWidth: .infinity)
                             }
                         }
@@ -82,7 +114,7 @@ struct LoginView: View {
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
 
-                        Button("Create Account") {
+                        Button("Create Account with Email") {
                             showSignUp = true
                         }
                         .buttonStyle(.bordered)
