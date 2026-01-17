@@ -3,12 +3,14 @@ import SwiftUI
 struct WorkoutSummaryView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
     let viewModel: WorkoutViewModel
     @State private var isSaving = false
     @State private var saveError: String?
     @State private var bestSession: WorkoutSession?
     @State private var isNewPersonalBest = false
+    @State private var savedLocally = false
 
     private let supabase = SupabaseService.shared
 
@@ -99,12 +101,35 @@ struct WorkoutSummaryView: View {
                     }
                 }
 
-                // Save Status
+                // Save Status / Sign In Prompt
                 if let error = saveError {
                     Text(error)
                         .font(.caption)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(.orange)
                         .padding(.horizontal)
+                } else if savedLocally && !authViewModel.isAuthenticated {
+                    VStack(spacing: 12) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                            Text("Saved to this device")
+                                .fontWeight(.medium)
+                        }
+                        .font(.subheadline)
+
+                        HStack(spacing: 8) {
+                            Image(systemName: "icloud.and.arrow.up")
+                                .foregroundStyle(.blue)
+                            Text("Sign in to back up and sync your workouts")
+                                .foregroundStyle(.secondary)
+                        }
+                        .font(.caption)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.blue.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal)
                 }
 
                 // Done Button
@@ -131,18 +156,27 @@ struct WorkoutSummaryView: View {
     }
 
     private func saveSession() async {
-        guard let userId = authViewModel.userId else {
-            saveError = "Unable to save: Not signed in"
-            return
+        isSaving = true
+
+        // Create session (userId will be nil for guests)
+        let session = viewModel.createSession(userId: authViewModel.userId)
+
+        // Always save locally first via SwiftData
+        let localStorage = LocalStorageService(modelContext: modelContext)
+        localStorage.saveSession(session)
+        savedLocally = true
+
+        // If authenticated, also sync to cloud
+        if authViewModel.isAuthenticated {
+            do {
+                try await supabase.saveWorkoutSession(session)
+                localStorage.markAsSynced([session.id])
+            } catch {
+                // Local save succeeded, cloud will sync later
+                saveError = "Saved locally. Cloud sync will retry later."
+            }
         }
 
-        isSaving = true
-        do {
-            let session = viewModel.createSession(userId: userId)
-            try await supabase.saveWorkoutSession(session)
-        } catch {
-            saveError = "Failed to save workout: \(error.localizedDescription)"
-        }
         isSaving = false
     }
 

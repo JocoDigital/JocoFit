@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 import Supabase
 
 @main
@@ -10,6 +11,7 @@ struct JocoFitApp: App {
             ContentView()
                 .environmentObject(authViewModel)
         }
+        .modelContainer(for: WorkoutSession.self)
 
         #if os(macOS)
         Settings {

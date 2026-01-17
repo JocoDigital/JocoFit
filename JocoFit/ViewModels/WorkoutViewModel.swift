@@ -295,7 +295,7 @@ final class WorkoutViewModel {
 
     // MARK: - Session Creation
 
-    func createSession(userId: UUID) -> WorkoutSession {
+    func createSession(userId: UUID?) -> WorkoutSession {
         WorkoutSession(
             userId: userId,
             workoutMode: configuration?.modeString ?? "unknown",
@@ -307,7 +307,8 @@ final class WorkoutViewModel {
             exerciseReps: exerciseReps,
             exerciseTiming: exerciseTiming,
             workoutStartedAt: workoutStartTime ?? Date(),
-            workoutEndedAt: Date()
+            workoutEndedAt: Date(),
+            isSynced: false
         )
     }
 }

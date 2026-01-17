@@ -9,19 +9,24 @@ struct LoginView: View {
     @State private var showSignUp = false
     @State private var showForgotPassword = false
 
+    var onContinueAsGuest: (() -> Void)?
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 32) {
                     // Logo and Title
                     VStack(spacing: 16) {
-                        Image(systemName: "figure.run.circle.fill")
-                            .font(.system(size: 80))
-                            .foregroundStyle(.blue)
+                        Image("JocoFitIcon")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 100, height: 100)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
 
-                        Text("JocoFit")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
+                        Image("JocoFitLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 40)
 
                         Text("Your personal workout companion")
                             .font(.subheadline)
@@ -118,6 +123,29 @@ struct LoginView: View {
                             showSignUp = true
                         }
                         .buttonStyle(.bordered)
+                    }
+
+                    // Continue as Guest
+                    if let onContinueAsGuest {
+                        VStack(spacing: 8) {
+                            Text("Just want to try it out?")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+
+                            Button {
+                                onContinueAsGuest()
+                            } label: {
+                                Text("Continue without signing in")
+                                    .font(.subheadline)
+                            }
+
+                            Text("Your workouts will be saved locally. Sign in later to sync across devices.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                        }
+                        .padding(.top, 8)
                     }
 
                     Spacer(minLength: 40)
@@ -220,6 +248,6 @@ struct ForgotPasswordView: View {
 }
 
 #Preview {
-    LoginView()
+    LoginView(onContinueAsGuest: {})
         .environmentObject(AuthViewModel())
 }

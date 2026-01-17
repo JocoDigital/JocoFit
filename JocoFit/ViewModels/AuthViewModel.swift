@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import SwiftData
 import Combine
 import Supabase
 import AuthenticationServices
@@ -12,9 +13,17 @@ final class AuthViewModel: ObservableObject {
     @Published var currentUser: User?
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var isSyncing = false
 
     private let supabase = SupabaseService.shared.client
     private var currentNonce: String?
+    private var syncService: SyncService?
+
+    /// Configure with model context for sync operations
+    func configure(with modelContext: ModelContext) {
+        let localStorage = LocalStorageService(modelContext: modelContext)
+        syncService = SyncService(localStorage: localStorage)
+    }
 
     // MARK: - Session Management
 
@@ -45,6 +54,9 @@ final class AuthViewModel: ObservableObject {
             )
             currentUser = response.user
             isAuthenticated = true
+
+            // Sync local data to cloud
+            await performSync()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -65,6 +77,9 @@ final class AuthViewModel: ObservableObject {
             )
             currentUser = session.user
             isAuthenticated = true
+
+            // Sync local data to cloud
+            await performSync()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -142,6 +157,9 @@ final class AuthViewModel: ObservableObject {
                 )
                 currentUser = session.user
                 isAuthenticated = true
+
+                // Sync local data to cloud
+                await performSync()
             } catch {
                 errorMessage = error.localizedDescription
             }
@@ -168,6 +186,17 @@ final class AuthViewModel: ObservableObject {
 
     func clearError() {
         errorMessage = nil
+    }
+
+    // MARK: - Sync
+
+    /// Syncs local workout data with cloud after sign-in
+    private func performSync() async {
+        guard let userId = currentUser?.id, let syncService = syncService else { return }
+
+        isSyncing = true
+        await syncService.syncOnLogin(userId: userId)
+        isSyncing = false
     }
 
     // MARK: - Private Helpers for Apple Sign In

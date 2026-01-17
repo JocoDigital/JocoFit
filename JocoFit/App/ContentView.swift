@@ -2,16 +2,22 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @Environment(\.modelContext) private var modelContext
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
 
     var body: some View {
         Group {
-            if authViewModel.isAuthenticated {
+            if hasSeenOnboarding || authViewModel.isAuthenticated {
                 MainTabView()
             } else {
-                LoginView()
+                LoginView(onContinueAsGuest: {
+                    hasSeenOnboarding = true
+                })
             }
         }
         .task {
+            // Configure auth with model context for sync
+            authViewModel.configure(with: modelContext)
             await authViewModel.checkSession()
         }
     }

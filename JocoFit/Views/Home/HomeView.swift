@@ -63,9 +63,16 @@ struct HomeView: View {
 
                     Spacer(minLength: 40)
                 }
-                .padding(.top)
             }
-            .navigationTitle("JocoFit")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Image("JocoFitLogo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 28)
+                }
+            }
             .refreshable {
                 await loadData()
             }
@@ -216,7 +223,7 @@ struct RecentSessionRow: View {
                     .font(.subheadline)
                     .fontWeight(.medium)
 
-                Text(session.createdAt, style: .relative)
+                Text(session.createdAt, format: .dateTime.month().day().hour().minute())
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

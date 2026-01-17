@@ -5,7 +5,7 @@ import SwiftData
 @Model
 final class WorkoutSession {
     var id: UUID
-    var userId: UUID
+    var userId: UUID? // nil for guest workouts
     var workoutMode: String
     var completed: Bool
     var completedRounds: Int
@@ -17,10 +17,16 @@ final class WorkoutSession {
     var workoutStartedAt: Date
     var workoutEndedAt: Date?
     var createdAt: Date
+    var isSynced: Bool // Tracks if session has been synced to cloud
+
+    /// Returns true if this session needs to be synced to the cloud
+    var needsSync: Bool {
+        !isSynced && userId != nil
+    }
 
     init(
         id: UUID = UUID(),
-        userId: UUID,
+        userId: UUID? = nil,
         workoutMode: String,
         completed: Bool = false,
         completedRounds: Int = 0,
@@ -30,7 +36,8 @@ final class WorkoutSession {
         exerciseReps: [String: Int] = [:],
         exerciseTiming: [String: Int] = [:],
         workoutStartedAt: Date = Date(),
-        workoutEndedAt: Date? = nil
+        workoutEndedAt: Date? = nil,
+        isSynced: Bool = false
     ) {
         self.id = id
         self.userId = userId
@@ -45,6 +52,7 @@ final class WorkoutSession {
         self.workoutStartedAt = workoutStartedAt
         self.workoutEndedAt = workoutEndedAt
         self.createdAt = Date()
+        self.isSynced = isSynced
     }
 
     // MARK: - Computed Properties
@@ -134,9 +142,9 @@ struct WorkoutSessionDTO: Codable {
     let workout_ended_at: Date?
     let created_at: Date?
 
-    init(from session: WorkoutSession) {
+    init(from session: WorkoutSession, userId: UUID) {
         self.id = session.id
-        self.user_id = session.userId
+        self.user_id = userId
         self.workout_mode = session.workoutMode
         self.completed = session.completed
         self.completed_rounds = session.completedRounds
@@ -163,7 +171,8 @@ struct WorkoutSessionDTO: Codable {
             exerciseReps: exercise_reps,
             exerciseTiming: exercise_timing,
             workoutStartedAt: workout_started_at,
-            workoutEndedAt: workout_ended_at
+            workoutEndedAt: workout_ended_at,
+            isSynced: true // Sessions from cloud are already synced
         )
     }
 }

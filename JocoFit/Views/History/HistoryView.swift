@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct HistoryView: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
+    @Environment(\.modelContext) private var modelContext
     @State private var viewModel = HistoryViewModel()
     @State private var showDeleteConfirmation = false
     @State private var sessionToDelete: WorkoutSession?
@@ -37,10 +39,11 @@ struct HistoryView: View {
                 }
             }
             .refreshable {
-                await viewModel.refresh()
+                await viewModel.refresh(userId: authViewModel.userId, isAuthenticated: authViewModel.isAuthenticated)
             }
             .task {
-                await viewModel.refresh()
+                viewModel.configure(with: modelContext)
+                await viewModel.refresh(userId: authViewModel.userId, isAuthenticated: authViewModel.isAuthenticated)
             }
             .confirmationDialog(
                 "Delete Workout?",
@@ -50,7 +53,7 @@ struct HistoryView: View {
                 Button("Delete", role: .destructive) {
                     if let session = sessionToDelete {
                         Task {
-                            await viewModel.deleteSession(session)
+                            await viewModel.deleteSession(session, userId: authViewModel.userId)
                         }
                     }
                 }
@@ -79,6 +82,16 @@ struct HistoryView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+
+            if !authViewModel.isAuthenticated {
+                VStack(spacing: 8) {
+                    Text("Sign in to back up and sync your workouts")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.top, 16)
+            }
         }
         .padding()
     }
@@ -86,16 +99,28 @@ struct HistoryView: View {
     // MARK: - History List
 
     private var historyList: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                // Stats Header
-                if let stats = viewModel.stats {
-                    StatsHeaderCard(stats: stats)
-                        .padding(.horizontal)
+        List {
+            // Sign-in banner for guests
+            if !authViewModel.isAuthenticated {
+                Section {
+                    SignInBanner()
                 }
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+            }
 
-                // Filter indicator
-                if let filter = viewModel.selectedModeFilter {
+            // Stats Header
+            if let stats = viewModel.stats {
+                Section {
+                    StatsHeaderCard(stats: stats)
+                }
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+            }
+
+            // Filter indicator
+            if let filter = viewModel.selectedModeFilter {
+                Section {
                     HStack {
                         Text("Filtered: \(formatModeName(filter))")
                             .font(.caption)
@@ -108,17 +133,20 @@ struct HistoryView: View {
                         }
                         .font(.caption)
                     }
-                    .padding(.horizontal)
                 }
+            }
 
-                // Sessions
+            // Sessions
+            Section {
                 ForEach(viewModel.filteredSessions) { session in
-                    NavigationLink(destination: SessionDetailView(session: session)) {
+                    NavigationLink(destination: SessionDetailView(session: session, onDelete: {
+                        await viewModel.deleteSession(session, userId: authViewModel.userId)
+                    })) {
                         HistorySessionCard(session: session)
                     }
-                    .buttonStyle(.plain)
-                    .padding(.horizontal)
-                    .contextMenu {
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    .listRowBackground(Color.clear)
+                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                         Button(role: .destructive) {
                             sessionToDelete = session
                             showDeleteConfirmation = true
@@ -128,8 +156,8 @@ struct HistoryView: View {
                     }
                 }
             }
-            .padding(.vertical)
         }
+        .listStyle(.plain)
     }
 
     private func formatModeName(_ mode: String) -> String {
@@ -185,6 +213,32 @@ struct StatColumn: View {
     }
 }
 
+// MARK: - Sign In Banner
+
+struct SignInBanner: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "icloud.and.arrow.up")
+                .font(.title2)
+                .foregroundStyle(.blue)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Sign in to back up and sync")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                Text("Your workouts are saved on this device. Sign in to back them up and access from anywhere.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+        }
+        .padding()
+        .background(Color.blue.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
 // MARK: - History Session Card
 
 struct HistorySessionCard: View {
@@ -194,8 +248,17 @@ struct HistorySessionCard: View {
         VStack(spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(session.workoutTitle)
-                        .font(.headline)
+                    HStack(spacing: 6) {
+                        Text(session.workoutTitle)
+                            .font(.headline)
+
+                        // Show sync status icon
+                        if !session.isSynced {
+                            Image(systemName: "icloud.slash")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                        }
+                    }
 
                     Text(session.createdAt, format: .dateTime.month().day().year().hour().minute())
                         .font(.caption)

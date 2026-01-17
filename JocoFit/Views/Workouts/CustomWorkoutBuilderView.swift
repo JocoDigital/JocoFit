@@ -2,11 +2,17 @@ import SwiftUI
 
 struct CustomWorkoutBuilderView: View {
     @State private var selectedExercises: Set<String> = []
+    @State private var orderedExercises: [Exercise] = []
     @State private var selectedProgression: ProgressionMode?
     @State private var navigateToWorkout = false
+    @State private var showOrderingSheet = false
 
     private var exercises: [Exercise] {
-        selectedExercises.compactMap { name in
+        // Use ordered list if available, otherwise build from selection
+        if !orderedExercises.isEmpty {
+            return orderedExercises
+        }
+        return selectedExercises.compactMap { name in
             Exercise.defaults.first { $0.name == name }
         }.sorted { $0.multiplier < $1.multiplier }
     }
@@ -68,27 +74,64 @@ struct CustomWorkoutBuilderView: View {
                     }
                 }
 
+                // Exercise Order Section (shown when exercises selected)
+                if !selectedExercises.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text("Exercise Order")
+                                .font(.headline)
+
+                            Spacer()
+
+                            Button {
+                                showOrderingSheet = true
+                            } label: {
+                                Label("Reorder", systemImage: "arrow.up.arrow.down")
+                                    .font(.subheadline)
+                            }
+                        }
+                        .padding(.horizontal)
+
+                        // Ordered list preview
+                        VStack(spacing: 8) {
+                            ForEach(Array(orderedExercises.enumerated()), id: \.element.id) { index, exercise in
+                                HStack(spacing: 12) {
+                                    Text("\(index + 1)")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                        .frame(width: 24, height: 24)
+                                        .background(Color.blue.opacity(0.2))
+                                        .clipShape(Circle())
+
+                                    Text(exercise.name)
+                                        .font(.subheadline)
+
+                                    Spacer()
+
+                                    Text("×\(exercise.multiplier)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(Color.secondaryBackground)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+
                 // Summary and Start Button
                 if canStart {
                     VStack(spacing: 16) {
                         // Summary
-                        VStack(spacing: 8) {
-                            HStack {
-                                Text("Total Reps")
-                                    .foregroundStyle(.secondary)
-                                Spacer()
-                                Text("\(configuration?.totalReps ?? 0)")
-                                    .fontWeight(.semibold)
-                            }
-
-                            HStack {
-                                Text("Exercises")
-                                    .foregroundStyle(.secondary)
-                                Spacer()
-                                Text(exercises.map { $0.name }.joined(separator: ", "))
-                                    .font(.caption)
-                                    .multilineTextAlignment(.trailing)
-                            }
+                        HStack {
+                            Text("Total Reps")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text("\(configuration?.totalReps ?? 0)")
+                                .fontWeight(.semibold)
                         }
                         .padding()
                         .background(.ultraThinMaterial)
@@ -112,13 +155,20 @@ struct CustomWorkoutBuilderView: View {
             }
             .padding(.vertical)
         }
+        .sheet(isPresented: $showOrderingSheet) {
+            ExerciseOrderingSheet(exercises: $orderedExercises)
+        }
     }
 
     private func toggleExercise(_ name: String) {
         if selectedExercises.contains(name) {
             selectedExercises.remove(name)
+            orderedExercises.removeAll { $0.name == name }
         } else {
             selectedExercises.insert(name)
+            if let exercise = Exercise.defaults.first(where: { $0.name == name }) {
+                orderedExercises.append(exercise)
+            }
         }
     }
 
@@ -136,34 +186,37 @@ struct ExerciseSelectionCard: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 8) {
+            VStack(spacing: 4) {
                 HStack {
                     Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                         .foregroundStyle(isSelected ? .blue : .secondary)
                     Spacer()
                     Text("×\(exercise.multiplier)")
-                        .font(.caption)
+                        .font(.caption2)
                         .fontWeight(.medium)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
                         .background(categoryColor.opacity(0.2))
                         .foregroundStyle(categoryColor)
                         .clipShape(Capsule())
                 }
 
+                Spacer(minLength: 0)
+
                 Text(exercise.name)
-                    .font(.subheadline)
+                    .font(.caption)
                     .fontWeight(.medium)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
-                    .minimumScaleFactor(0.8)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Text(exercise.category.rawValue)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            .padding()
+            .padding(10)
             .frame(maxWidth: .infinity)
+            .frame(height: 90)
             .background(isSelected ? Color.blue.opacity(0.1) : Color.secondaryBackground)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
@@ -224,6 +277,57 @@ struct ProgressionModeCard: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Exercise Ordering Sheet
+
+struct ExerciseOrderingSheet: View {
+    @Binding var exercises: [Exercise]
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    ForEach(exercises) { exercise in
+                        HStack(spacing: 12) {
+                            Image(systemName: "line.3.horizontal")
+                                .foregroundStyle(.secondary)
+
+                            Text(exercise.name)
+                                .font(.body)
+
+                            Spacer()
+
+                            Text("×\(exercise.multiplier)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                    .onMove { from, to in
+                        exercises.move(fromOffsets: from, toOffset: to)
+                    }
+                } header: {
+                    Text("Drag to reorder exercises")
+                } footer: {
+                    Text("The order here determines which exercise you'll do first, second, etc. during each round of the ladder.")
+                }
+            }
+            .environment(\.editMode, .constant(.active))
+            .navigationTitle("Exercise Order")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
     }
 }
 

@@ -32,6 +32,8 @@
 		0023 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1023 /* Assets.xcassets */; };
 		0024 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1024 /* Preview Assets.xcassets */; };
 		0025 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 9001 /* Supabase */; };
+		2CCCB2162F1C2B7800D9B0CD /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCCB2152F1C2B7800D9B0CD /* SyncService.swift */; };
+		2CCCB2172F1C2B7800D9B0CD /* LocalStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCCB2142F1C2B7800D9B0CD /* LocalStorageService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -61,6 +63,8 @@
 		1024 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		1025 /* JocoFit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JocoFit.entitlements; sourceTree = "<group>"; };
 		2001 /* JocoFit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JocoFit.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CCCB2142F1C2B7800D9B0CD /* LocalStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStorageService.swift; sourceTree = "<group>"; };
+		2CCCB2152F1C2B7800D9B0CD /* SyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +156,8 @@
 		4008 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				2CCCB2142F1C2B7800D9B0CD /* LocalStorageService.swift */,
+				2CCCB2152F1C2B7800D9B0CD /* SyncService.swift */,
 				1010 /* SupabaseService.swift */,
 			);
 			path = Services;
@@ -308,6 +314,8 @@
 				0003 /* Exercise.swift in Sources */,
 				0004 /* WorkoutMode.swift in Sources */,
 				0005 /* WorkoutSession.swift in Sources */,
+				2CCCB2162F1C2B7800D9B0CD /* SyncService.swift in Sources */,
+				2CCCB2172F1C2B7800D9B0CD /* LocalStorageService.swift in Sources */,
 				0006 /* WorkoutTemplate.swift in Sources */,
 				0007 /* WorkoutViewModel.swift in Sources */,
 				0008 /* AuthViewModel.swift in Sources */,

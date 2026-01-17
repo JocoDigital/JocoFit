@@ -2,6 +2,10 @@ import SwiftUI
 
 struct SessionDetailView: View {
     let session: WorkoutSession
+    var onDelete: (() async -> Void)? = nil
+    @Environment(\.dismiss) private var dismiss
+    @State private var showDeleteConfirmation = false
+    @State private var isDeleting = false
 
     var body: some View {
         ScrollView {
@@ -147,6 +151,23 @@ struct SessionDetailView: View {
                     .padding(.horizontal)
                 }
 
+                // Delete Button
+                if onDelete != nil {
+                    Button(role: .destructive) {
+                        showDeleteConfirmation = true
+                    } label: {
+                        HStack {
+                            Spacer()
+                            Label("Delete Workout", systemImage: "trash")
+                            Spacer()
+                        }
+                        .padding()
+                        .background(Color.red.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .padding(.horizontal)
+                }
+
                 Spacer(minLength: 40)
             }
         }
@@ -154,6 +175,22 @@ struct SessionDetailView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .confirmationDialog(
+            "Delete Workout?",
+            isPresented: $showDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                isDeleting = true
+                Task {
+                    await onDelete?()
+                    dismiss()
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This action cannot be undone.")
+        }
     }
 
     private func formatTime(_ seconds: Int) -> String {

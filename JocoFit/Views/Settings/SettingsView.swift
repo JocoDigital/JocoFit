@@ -3,25 +3,52 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @State private var showSignOutConfirmation = false
+    @State private var showSignIn = false
 
     var body: some View {
         NavigationStack {
             List {
                 // Account Section
                 Section("Account") {
-                    if let email = authViewModel.userEmail {
-                        HStack {
-                            Label("Email", systemImage: "envelope")
-                            Spacer()
-                            Text(email)
+                    if authViewModel.isAuthenticated {
+                        if let email = authViewModel.userEmail {
+                            HStack {
+                                Label("Email", systemImage: "envelope")
+                                Spacer()
+                                Text(email)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+
+                        if authViewModel.isSyncing {
+                            HStack {
+                                Label("Syncing...", systemImage: "arrow.triangle.2.circlepath")
+                                Spacer()
+                                ProgressView()
+                            }
+                        }
+
+                        Button(role: .destructive) {
+                            showSignOutConfirmation = true
+                        } label: {
+                            Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+                        }
+                    } else {
+                        // Guest mode - show sign in option
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label("Guest Mode", systemImage: "person.crop.circle.badge.questionmark")
+                                .font(.headline)
+                            Text("Sign in to sync your workouts across devices and back up your data.")
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
-                    }
+                        .padding(.vertical, 4)
 
-                    Button(role: .destructive) {
-                        showSignOutConfirmation = true
-                    } label: {
-                        Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+                        Button {
+                            showSignIn = true
+                        } label: {
+                            Label("Sign In", systemImage: "person.crop.circle.badge.plus")
+                        }
                     }
                 }
 
@@ -81,6 +108,27 @@ struct SettingsView: View {
                 Button("Cancel", role: .cancel) {}
             } message: {
                 Text("You'll need to sign in again to access your workouts.")
+            }
+            .sheet(isPresented: $showSignIn) {
+                NavigationStack {
+                    LoginView()
+                        .navigationTitle("Sign In")
+                        #if os(iOS)
+                        .navigationBarTitleDisplayMode(.inline)
+                        #endif
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button("Cancel") {
+                                    showSignIn = false
+                                }
+                            }
+                        }
+                }
+            }
+            .onChange(of: authViewModel.isAuthenticated) { _, isAuthenticated in
+                if isAuthenticated {
+                    showSignIn = false
+                }
             }
         }
     }
@@ -182,15 +230,25 @@ struct TermsOfServiceView: View {
 
 struct DataManagementView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @Environment(\.modelContext) private var modelContext
     @State private var showDeleteConfirmation = false
     @State private var isDeleting = false
+    @State private var showSuccessAlert = false
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
 
     var body: some View {
         List {
             Section {
-                Text("Your workout data is synced to the cloud and stored securely. You can delete all your data at any time.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                if authViewModel.isAuthenticated {
+                    Text("Your workout data is synced to the cloud and stored securely. You can delete all your data at any time.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("Your workout data is stored locally on this device. Sign in to back up your data to the cloud.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Section {
@@ -221,12 +279,36 @@ struct DataManagementView: View {
             titleVisibility: .visible
         ) {
             Button("Delete All Data", role: .destructive) {
-                // TODO: Implement data deletion
+                Task {
+                    await deleteAllData()
+                }
             }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This will permanently delete all your workout history and cannot be undone.")
         }
+        .alert("Data Deleted", isPresented: $showSuccessAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("All your workout history has been deleted.")
+        }
+        .alert("Error", isPresented: $showErrorAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(errorMessage)
+        }
+    }
+
+    private func deleteAllData() async {
+        isDeleting = true
+
+        // Delete local data
+        let localStorage = LocalStorageService(modelContext: modelContext)
+        let syncService = SyncService(localStorage: localStorage)
+        await syncService.deleteAllSessions(userId: authViewModel.userId)
+
+        showSuccessAlert = true
+        isDeleting = false
     }
 }
 

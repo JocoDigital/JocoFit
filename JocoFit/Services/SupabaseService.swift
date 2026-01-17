@@ -28,7 +28,10 @@ final class SupabaseService {
     // MARK: - Workout Sessions
 
     func saveWorkoutSession(_ session: WorkoutSession) async throws {
-        let dto = WorkoutSessionDTO(from: session)
+        guard let userId = session.userId else {
+            throw SupabaseError.notAuthenticated
+        }
+        let dto = WorkoutSessionDTO(from: session, userId: userId)
         try await client.database
             .from("workout_sessions")
             .insert(dto)
@@ -98,6 +101,18 @@ final class SupabaseService {
             .from("workout_sessions")
             .delete()
             .eq("id", value: sessionId.uuidString)
+            .eq("user_id", value: userId.uuidString)
+            .execute()
+    }
+
+    func deleteAllWorkoutSessions() async throws {
+        guard let userId = await currentUserId else {
+            throw SupabaseError.notAuthenticated
+        }
+
+        try await client.database
+            .from("workout_sessions")
+            .delete()
             .eq("user_id", value: userId.uuidString)
             .execute()
     }
