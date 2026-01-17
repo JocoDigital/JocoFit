@@ -8,10 +8,8 @@ final class SupabaseService {
     let client: SupabaseClient
 
     private init() {
-        // IMPORTANT: Replace these with your actual Supabase credentials
-        // Consider using environment variables or a configuration file for production
-        let supabaseURL = URL(string: "YOUR_SUPABASE_URL")!
-        let supabaseKey = "YOUR_SUPABASE_ANON_KEY"
+        let supabaseURL = URL(string: "https://jcobqznsqmmjpwirmhgf.supabase.co")!
+        let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impjb2Jxem5zcW1tanB3aXJtaGdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2NzQxNTEsImV4cCI6MjA4NDI1MDE1MX0.iNsrHKQh3dVrTbz3WkbHfol__vPv5ACvtIP46yzN6bk"
 
         client = SupabaseClient(
             supabaseURL: supabaseURL,

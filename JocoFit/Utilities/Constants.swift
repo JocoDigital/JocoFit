@@ -53,11 +53,7 @@ enum AppConstants {
 }
 
 /// Supabase configuration
-/// IMPORTANT: Replace these values with your actual Supabase credentials
 enum SupabaseConfig {
-    // TODO: Replace with your actual Supabase URL
-    static let url = "https://your-project.supabase.co"
-
-    // TODO: Replace with your actual Supabase anon key
-    static let anonKey = "your-anon-key"
+    static let url = "https://jcobqznsqmmjpwirmhgf.supabase.co"
+    static let anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impjb2Jxem5zcW1tanB3aXJtaGdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2NzQxNTEsImV4cCI6MjA4NDI1MDE1MX0.iNsrHKQh3dVrTbz3WkbHfol__vPv5ACvtIP46yzN6bk"
 }
