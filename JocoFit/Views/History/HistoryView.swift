@@ -220,7 +220,7 @@ struct HistorySessionCard: View {
                 .tint(session.completed ? .green : .orange)
         }
         .padding()
-        .background(Color(.systemGray6))
+        .background(Color.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

@@ -42,8 +42,10 @@ struct SignUpView: View {
                     TextField("Email", text: $email)
                         .textFieldStyle(.roundedBorder)
                         .textContentType(.emailAddress)
+                        #if os(iOS)
                         .keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never)
+                        #endif
                         .autocorrectionDisabled()
 
                     SecureField("Password", text: $password)
@@ -105,7 +107,9 @@ struct SignUpView: View {
             }
         }
         .navigationTitle("Sign Up")
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .onChange(of: authViewModel.isAuthenticated) { _, isAuthenticated in
             if isAuthenticated {
                 dismiss()

@@ -82,7 +82,7 @@ struct SessionDetailView: View {
                             .foregroundStyle(.secondary)
                     }
                     .padding()
-                    .background(Color(.systemGray6))
+                    .background(Color.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 .padding(.horizontal)
@@ -110,7 +110,7 @@ struct SessionDetailView: View {
                             }
                         }
                         .padding()
-                        .background(Color(.systemGray6))
+                        .background(Color.secondaryBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 }
@@ -141,7 +141,7 @@ struct SessionDetailView: View {
                             }
                         }
                         .padding()
-                        .background(Color(.systemGray6))
+                        .background(Color.secondaryBackground)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     .padding(.horizontal)
@@ -151,7 +151,9 @@ struct SessionDetailView: View {
             }
         }
         .navigationTitle("Workout Details")
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 
     private func formatTime(_ seconds: Int) -> String {

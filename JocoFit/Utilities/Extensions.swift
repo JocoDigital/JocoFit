@@ -67,6 +67,17 @@ extension Color {
     static func exerciseColor(for index: Int) -> Color {
         exerciseColors[index % exerciseColors.count]
     }
+
+    /// Cross-platform background color (equivalent to iOS systemGray6)
+    static var secondaryBackground: Color {
+        #if os(iOS)
+        return Color(uiColor: .systemGray6)
+        #elseif os(macOS)
+        return Color(nsColor: .controlBackgroundColor)
+        #else
+        return Color.gray.opacity(0.1)
+        #endif
+    }
 }
 
 // MARK: - String Extensions

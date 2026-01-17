@@ -32,8 +32,10 @@ struct LoginView: View {
                         TextField("Email", text: $email)
                             .textFieldStyle(.roundedBorder)
                             .textContentType(.emailAddress)
+                            #if os(iOS)
                             .keyboardType(.emailAddress)
                             .textInputAutocapitalization(.never)
+                            #endif
                             .autocorrectionDisabled()
 
                         SecureField("Password", text: $password)
@@ -133,8 +135,10 @@ struct ForgotPasswordView: View {
                 TextField("Email", text: $email)
                     .textFieldStyle(.roundedBorder)
                     .textContentType(.emailAddress)
+                    #if os(iOS)
                     .keyboardType(.emailAddress)
                     .textInputAutocapitalization(.never)
+                    #endif
                     .autocorrectionDisabled()
                     .padding(.horizontal, 32)
 
@@ -169,7 +173,9 @@ struct ForgotPasswordView: View {
             }
             .padding(.top, 40)
             .navigationTitle("Reset Password")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {

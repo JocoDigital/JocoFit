@@ -129,7 +129,9 @@ struct PrivacyPolicyView: View {
             .padding()
         }
         .navigationTitle("Privacy Policy")
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 }
 
@@ -170,7 +172,9 @@ struct TermsOfServiceView: View {
             .padding()
         }
         .navigationTitle("Terms of Service")
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 }
 
@@ -208,7 +212,9 @@ struct DataManagementView: View {
             }
         }
         .navigationTitle("Manage Data")
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .confirmationDialog(
             "Delete All Data?",
             isPresented: $showDeleteConfirmation,

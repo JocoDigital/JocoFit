@@ -164,7 +164,7 @@ struct ExerciseSelectionCard: View {
             }
             .padding()
             .frame(maxWidth: .infinity)
-            .background(isSelected ? Color.blue.opacity(0.1) : Color(.systemGray6))
+            .background(isSelected ? Color.blue.opacity(0.1) : Color.secondaryBackground)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
@@ -216,7 +216,7 @@ struct ProgressionModeCard: View {
                 }
             }
             .padding()
-            .background(isSelected ? Color.blue.opacity(0.1) : Color(.systemGray6))
+            .background(isSelected ? Color.blue.opacity(0.1) : Color.secondaryBackground)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)

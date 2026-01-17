@@ -100,7 +100,7 @@ struct ActiveWorkoutView: View {
                             .foregroundStyle(.secondary)
                     }
                     .padding()
-                    .background(Color(.systemGray6))
+                    .background(Color.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
@@ -141,7 +141,7 @@ struct ActiveWorkoutView: View {
                     .foregroundStyle(.secondary)
             }
             .padding()
-            .background(Color(.systemGray6))
+            .background(Color.secondaryBackground)
 
             // Progress Bar
             GeometryReader { geometry in

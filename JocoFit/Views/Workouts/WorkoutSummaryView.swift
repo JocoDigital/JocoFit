@@ -289,7 +289,7 @@ struct ExerciseBreakdownRow: View {
                 .frame(width: 60, alignment: .trailing)
         }
         .padding()
-        .background(Color(.systemGray6))
+        .background(Color.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

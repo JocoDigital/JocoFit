@@ -15,14 +15,13 @@ struct WorkoutSelectionView: View {
                 .padding()
 
                 // Content
-                TabView(selection: $selectedTab) {
-                    PresetWorkoutsView()
-                        .tag(0)
-
-                    CustomWorkoutBuilderView()
-                        .tag(1)
+                Group {
+                    if selectedTab == 0 {
+                        PresetWorkoutsView()
+                    } else {
+                        CustomWorkoutBuilderView()
+                    }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
             }
             .navigationTitle("Workouts")
         }

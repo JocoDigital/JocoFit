@@ -22,11 +22,15 @@ let package = Package(
             name: "JocoFit",
             dependencies: [
                 .product(name: "Supabase", package: "supabase-swift")
-            ]
+            ],
+            path: "JocoFit",
+            exclude: ["Resources/Assets.xcassets"],
+            sources: ["App", "Models", "Views", "ViewModels", "Services", "Components", "Utilities"]
         ),
         .testTarget(
             name: "JocoFitTests",
-            dependencies: ["JocoFit"]
+            dependencies: ["JocoFit"],
+            path: "JocoFitTests"
         ),
     ]
 )
