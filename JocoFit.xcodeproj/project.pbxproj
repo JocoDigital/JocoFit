@@ -34,6 +34,7 @@
 		0025 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 9001 /* Supabase */; };
 		2CCCB2162F1C2B7800D9B0CD /* SyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCCB2152F1C2B7800D9B0CD /* SyncService.swift */; };
 		2CCCB2172F1C2B7800D9B0CD /* LocalStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CCCB2142F1C2B7800D9B0CD /* LocalStorageService.swift */; };
+		2CCCB21C2F1C4B9000D9B0CD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2CCCB21B2F1C4B9000D9B0CD /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,6 +66,8 @@
 		2001 /* JocoFit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JocoFit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CCCB2142F1C2B7800D9B0CD /* LocalStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStorageService.swift; sourceTree = "<group>"; };
 		2CCCB2152F1C2B7800D9B0CD /* SyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncService.swift; sourceTree = "<group>"; };
+		2CCCB21A2F1C49D500D9B0CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		2CCCB21B2F1C4B9000D9B0CD /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +93,7 @@
 		4002 /* JocoFit */ = {
 			isa = PBXGroup;
 			children = (
+				2CCCB21A2F1C49D500D9B0CD /* Info.plist */,
 				1025 /* JocoFit.entitlements */,
 				4004 /* App */,
 				4005 /* Models */,
@@ -175,6 +179,7 @@
 		4010 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2CCCB21B2F1C4B9000D9B0CD /* LaunchScreen.storyboard */,
 				1023 /* Assets.xcassets */,
 			);
 			path = Resources;
@@ -297,6 +302,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CCCB21C2F1C4B9000D9B0CD /* LaunchScreen.storyboard in Resources */,
 				0023 /* Assets.xcassets in Resources */,
 				0024 /* Preview Assets.xcassets in Resources */,
 			);
@@ -465,14 +471,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = JocoFit/JocoFit.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"JocoFit/Preview Content\"";
 				DEVELOPMENT_TEAM = MH534KL6R2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JocoFit/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -495,14 +502,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = JocoFit/JocoFit.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"JocoFit/Preview Content\"";
 				DEVELOPMENT_TEAM = MH534KL6R2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JocoFit/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (

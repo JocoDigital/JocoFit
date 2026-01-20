@@ -4,6 +4,8 @@ struct SettingsView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @State private var showSignOutConfirmation = false
     @State private var showSignIn = false
+    @State private var showDeleteAccountConfirmation = false
+    @State private var isDeletingAccount = false
 
     var body: some View {
         NavigationStack {
@@ -20,13 +22,22 @@ struct SettingsView: View {
                             }
                         }
 
-                        if authViewModel.isSyncing {
-                            HStack {
-                                Label("Syncing...", systemImage: "arrow.triangle.2.circlepath")
-                                Spacer()
-                                ProgressView()
+                        Button {
+                            Task {
+                                await authViewModel.manualSync()
+                            }
+                        } label: {
+                            if authViewModel.isSyncing {
+                                HStack {
+                                    Label("Syncing...", systemImage: "arrow.triangle.2.circlepath")
+                                    Spacer()
+                                    ProgressView()
+                                }
+                            } else {
+                                Label("Sync Now", systemImage: "arrow.triangle.2.circlepath")
                             }
                         }
+                        .disabled(authViewModel.isSyncing)
 
                         Button(role: .destructive) {
                             showSignOutConfirmation = true
@@ -61,11 +72,11 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
 
-                    Link(destination: URL(string: "https://jocodigital.com")!) {
+                    Link(destination: URL(string: "https://jocofit.com")!) {
                         Label("Website", systemImage: "globe")
                     }
 
-                    Link(destination: URL(string: "mailto:support@jocodigital.com")!) {
+                    Link(destination: URL(string: "https://jocofit.com/support.php")!) {
                         Label("Contact Support", systemImage: "envelope")
                     }
                 }
@@ -93,6 +104,29 @@ struct SettingsView: View {
                         Label("Manage Data", systemImage: "externaldrive")
                     }
                 }
+
+                // Danger Zone - Account Deletion
+                if authViewModel.isAuthenticated {
+                    Section {
+                        Button(role: .destructive) {
+                            showDeleteAccountConfirmation = true
+                        } label: {
+                            if isDeletingAccount {
+                                HStack {
+                                    ProgressView()
+                                    Text("Deleting Account...")
+                                }
+                            } else {
+                                Label("Delete Account", systemImage: "person.crop.circle.badge.minus")
+                            }
+                        }
+                        .disabled(isDeletingAccount)
+                    } header: {
+                        Text("Danger Zone")
+                    } footer: {
+                        Text("Permanently delete your account, all workout history, and saved templates. This action cannot be undone.")
+                    }
+                }
             }
             .navigationTitle("Settings")
             .confirmationDialog(
@@ -108,6 +142,22 @@ struct SettingsView: View {
                 Button("Cancel", role: .cancel) {}
             } message: {
                 Text("You'll need to sign in again to access your workouts.")
+            }
+            .confirmationDialog(
+                "Delete Account?",
+                isPresented: $showDeleteAccountConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Delete Account", role: .destructive) {
+                    Task {
+                        isDeletingAccount = true
+                        _ = await authViewModel.deleteAccount()
+                        isDeletingAccount = false
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This will permanently delete your account, all workout history, and saved templates. This action cannot be undone.")
             }
             .sheet(isPresented: $showSignIn) {
                 NavigationStack {
@@ -140,6 +190,15 @@ struct PrivacyPolicyView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                Link(destination: URL(string: "https://jocofit.com/privacy.php")!) {
+                    HStack {
+                        Image(systemName: "globe")
+                        Text("View on jocofit.com")
+                    }
+                    .font(.subheadline)
+                }
+                .padding(.bottom, 8)
+
                 Text("Privacy Policy")
                     .font(.title)
                     .fontWeight(.bold)
@@ -189,6 +248,15 @@ struct TermsOfServiceView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                Link(destination: URL(string: "https://jocofit.com/privacy.php")!) {
+                    HStack {
+                        Image(systemName: "globe")
+                        Text("View on jocofit.com")
+                    }
+                    .font(.subheadline)
+                }
+                .padding(.bottom, 8)
+
                 Text("Terms of Service")
                     .font(.title)
                     .fontWeight(.bold)

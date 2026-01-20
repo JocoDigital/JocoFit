@@ -1,8 +1,10 @@
 import SwiftUI
+import AuthenticationServices
 
 struct SignUpView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     @State private var email = ""
     @State private var password = ""
@@ -37,24 +39,79 @@ struct SignUpView: View {
                 }
                 .padding(.top, 20)
 
-                // Sign Up Form
+                // Sign Up with Apple
                 VStack(spacing: 16) {
-                    TextField("Email", text: $email)
-                        .textFieldStyle(.roundedBorder)
-                        .textContentType(.emailAddress)
-                        #if os(iOS)
-                        .keyboardType(.emailAddress)
-                        .textInputAutocapitalization(.never)
-                        #endif
-                        .autocorrectionDisabled()
+                    SignInWithAppleButton(.signUp) { request in
+                        let appleRequest = authViewModel.signInWithApple()
+                        request.requestedScopes = appleRequest.requestedScopes
+                        request.nonce = appleRequest.nonce
+                    } onCompletion: { result in
+                        Task {
+                            await authViewModel.handleAppleSignIn(result: result)
+                        }
+                    }
+                    .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
+                    .frame(height: 50)
+                }
+                .padding(.horizontal, 24)
 
-                    SecureField("Password", text: $password)
-                        .textFieldStyle(.roundedBorder)
-                        .textContentType(.newPassword)
+                // Divider with "or"
+                HStack {
+                    Rectangle()
+                        .fill(Color.secondary.opacity(0.3))
+                        .frame(height: 1)
+                    Text("or sign up with email")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Rectangle()
+                        .fill(Color.secondary.opacity(0.3))
+                        .frame(height: 1)
+                }
+                .padding(.horizontal, 24)
 
-                    SecureField("Confirm Password", text: $confirmPassword)
-                        .textFieldStyle(.roundedBorder)
-                        .textContentType(.newPassword)
+                // Sign Up Form
+                VStack(spacing: 12) {
+                    VStack(spacing: 0) {
+                        HStack {
+                            Image(systemName: "envelope")
+                                .foregroundStyle(.secondary)
+                                .frame(width: 24)
+                            TextField("Email", text: $email)
+                                .textContentType(.emailAddress)
+                                #if os(iOS)
+                                .keyboardType(.emailAddress)
+                                .textInputAutocapitalization(.never)
+                                #endif
+                                .autocorrectionDisabled()
+                        }
+                        .padding()
+
+                        Divider()
+                            .padding(.leading, 48)
+
+                        HStack {
+                            Image(systemName: "lock")
+                                .foregroundStyle(.secondary)
+                                .frame(width: 24)
+                            SecureField("Password", text: $password)
+                                .textContentType(.newPassword)
+                        }
+                        .padding()
+
+                        Divider()
+                            .padding(.leading, 48)
+
+                        HStack {
+                            Image(systemName: "lock.fill")
+                                .foregroundStyle(.secondary)
+                                .frame(width: 24)
+                            SecureField("Confirm Password", text: $confirmPassword)
+                                .textContentType(.newPassword)
+                        }
+                        .padding()
+                    }
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
 
                     // Password requirements
                     VStack(alignment: .leading, spacing: 4) {
@@ -84,24 +141,28 @@ struct SignUpView: View {
                     } label: {
                         if authViewModel.isLoading {
                             ProgressView()
+                                .tint(.white)
                                 .frame(maxWidth: .infinity)
+                                .frame(height: 24)
                         } else {
                             Text("Create Account")
+                                .fontWeight(.semibold)
                                 .frame(maxWidth: .infinity)
+                                .frame(height: 24)
                         }
                     }
                     .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                     .disabled(!isValidForm || authViewModel.isLoading)
                 }
-                .padding(.horizontal, 32)
+                .padding(.horizontal, 24)
 
                 // Terms
                 Text("By creating an account, you agree to our Terms of Service and Privacy Policy.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal, 24)
 
                 Spacer(minLength: 40)
             }

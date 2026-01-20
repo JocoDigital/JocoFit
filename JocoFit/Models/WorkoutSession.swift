@@ -37,6 +37,7 @@ final class WorkoutSession {
         exerciseTiming: [String: Int] = [:],
         workoutStartedAt: Date = Date(),
         workoutEndedAt: Date? = nil,
+        createdAt: Date? = nil,
         isSynced: Bool = false
     ) {
         self.id = id
@@ -51,7 +52,7 @@ final class WorkoutSession {
         self.exerciseTimingData = try? JSONEncoder().encode(exerciseTiming)
         self.workoutStartedAt = workoutStartedAt
         self.workoutEndedAt = workoutEndedAt
-        self.createdAt = Date()
+        self.createdAt = createdAt ?? Date()
         self.isSynced = isSynced
     }
 
@@ -172,6 +173,7 @@ struct WorkoutSessionDTO: Codable {
             exerciseTiming: exercise_timing,
             workoutStartedAt: workout_started_at,
             workoutEndedAt: workout_ended_at,
+            createdAt: created_at,
             isSynced: true // Sessions from cloud are already synced
         )
     }

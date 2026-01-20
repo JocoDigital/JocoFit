@@ -17,6 +17,19 @@ final class LocalStorageService {
         try? modelContext.save()
     }
 
+    /// Saves a session only if one with the same ID doesn't already exist
+    /// Returns true if saved, false if already exists
+    @discardableResult
+    func saveSessionIfNotExists(_ session: WorkoutSession) -> Bool {
+        // Check if session with this ID already exists
+        if fetchSession(by: session.id) != nil {
+            return false
+        }
+        modelContext.insert(session)
+        try? modelContext.save()
+        return true
+    }
+
     // MARK: - Fetch
 
     func fetchAllSessions() -> [WorkoutSession] {

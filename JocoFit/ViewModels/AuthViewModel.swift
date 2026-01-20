@@ -103,6 +103,44 @@ final class AuthViewModel: ObservableObject {
         isLoading = false
     }
 
+    // MARK: - Delete Account
+
+    /// Permanently deletes the user's account and all associated data
+    func deleteAccount() async -> Bool {
+        guard let userId = currentUser?.id else {
+            errorMessage = "No user signed in"
+            return false
+        }
+
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            // Delete all workout data first
+            if let syncService = syncService {
+                await syncService.deleteAllSessions(userId: userId)
+            }
+
+            // Delete workout templates from Supabase
+            try await SupabaseService.shared.deleteAllWorkoutTemplates()
+
+            // Delete workout sessions from Supabase
+            try await SupabaseService.shared.deleteAllWorkoutSessions()
+
+            // Sign out the user (account deletion requires server-side admin API)
+            try await supabase.auth.signOut()
+
+            currentUser = nil
+            isAuthenticated = false
+            isLoading = false
+            return true
+        } catch {
+            errorMessage = "Failed to delete account: \(error.localizedDescription)"
+            isLoading = false
+            return false
+        }
+    }
+
     // MARK: - Password Reset
 
     func resetPassword(email: String) async {
@@ -196,6 +234,16 @@ final class AuthViewModel: ObservableObject {
 
         isSyncing = true
         await syncService.syncOnLogin(userId: userId)
+        isSyncing = false
+    }
+
+    /// Manually trigger a sync (callable from Settings)
+    func manualSync() async {
+        guard let userId = currentUser?.id, let syncService = syncService else { return }
+
+        isSyncing = true
+        await syncService.uploadUnsyncedSessions()
+        await syncService.downloadCloudSessions(userId: userId)
         isSyncing = false
     }
 

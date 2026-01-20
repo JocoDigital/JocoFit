@@ -45,14 +45,10 @@ final class SyncService {
     func downloadCloudSessions(userId: UUID) async {
         do {
             let cloudSessions = try await supabase.fetchWorkoutSessions()
-            let localSessions = localStorage.fetchAllSessions()
-            let localIds = Set(localSessions.map { $0.id })
 
             for cloudSession in cloudSessions {
-                if !localIds.contains(cloudSession.id) {
-                    // This session exists in cloud but not locally - add it
-                    localStorage.saveSession(cloudSession)
-                }
+                // saveSessionIfNotExists handles deduplication
+                localStorage.saveSessionIfNotExists(cloudSession)
             }
         } catch {
             print("Failed to download cloud sessions: \(error.localizedDescription)")

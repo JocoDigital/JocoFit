@@ -17,22 +17,16 @@ struct LoginView: View {
                 VStack(spacing: 32) {
                     // Logo and Title
                     VStack(spacing: 16) {
-                        Image("JocoFitIcon")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 100, height: 100)
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
-
                         Image("JocoFitLogo")
                             .resizable()
                             .scaledToFit()
-                            .frame(height: 40)
+                            .frame(height: 50)
 
                         Text("Your personal workout companion")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.top, 40)
+                    .padding(.top, 60)
 
                     // Continue with Apple Button
                     VStack(spacing: 16) {
@@ -72,19 +66,36 @@ struct LoginView: View {
                     .padding(.horizontal, 32)
 
                     // Email Login Form
-                    VStack(spacing: 16) {
-                        TextField("Email", text: $email)
-                            .textFieldStyle(.roundedBorder)
-                            .textContentType(.emailAddress)
-                            #if os(iOS)
-                            .keyboardType(.emailAddress)
-                            .textInputAutocapitalization(.never)
-                            #endif
-                            .autocorrectionDisabled()
+                    VStack(spacing: 12) {
+                        VStack(spacing: 0) {
+                            HStack {
+                                Image(systemName: "envelope")
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 24)
+                                TextField("Email", text: $email)
+                                    .textContentType(.emailAddress)
+                                    #if os(iOS)
+                                    .keyboardType(.emailAddress)
+                                    .textInputAutocapitalization(.never)
+                                    #endif
+                                    .autocorrectionDisabled()
+                            }
+                            .padding()
 
-                        SecureField("Password", text: $password)
-                            .textFieldStyle(.roundedBorder)
-                            .textContentType(.password)
+                            Divider()
+                                .padding(.leading, 48)
+
+                            HStack {
+                                Image(systemName: "lock")
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 24)
+                                SecureField("Password", text: $password)
+                                    .textContentType(.password)
+                            }
+                            .padding()
+                        }
+                        .background(Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
 
                         Button {
                             Task {
@@ -93,37 +104,46 @@ struct LoginView: View {
                         } label: {
                             if authViewModel.isLoading {
                                 ProgressView()
+                                    .tint(.white)
                                     .frame(maxWidth: .infinity)
+                                    .frame(height: 24)
                             } else {
-                                Text("Sign In with Email")
+                                Text("Sign In")
+                                    .fontWeight(.semibold)
                                     .frame(maxWidth: .infinity)
+                                    .frame(height: 24)
                             }
                         }
                         .buttonStyle(.borderedProminent)
-                        .controlSize(.large)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                         .disabled(email.isEmpty || password.isEmpty || authViewModel.isLoading)
 
                         Button("Forgot Password?") {
                             showForgotPassword = true
                         }
-                        .font(.footnote)
+                        .font(.subheadline)
+                        .padding(.top, 4)
                     }
-                    .padding(.horizontal, 32)
-
-                    Divider()
-                        .padding(.horizontal, 32)
+                    .padding(.horizontal, 24)
 
                     // Sign Up
-                    VStack(spacing: 8) {
+                    VStack(spacing: 12) {
                         Text("Don't have an account?")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
 
-                        Button("Create Account with Email") {
+                        Button {
                             showSignUp = true
+                        } label: {
+                            Text("Create Account")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 24)
                         }
                         .buttonStyle(.bordered)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
+                    .padding(.horizontal, 24)
 
                     // Continue as Guest
                     if let onContinueAsGuest {

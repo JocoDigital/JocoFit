@@ -69,13 +69,10 @@ final class HistoryViewModel {
             do {
                 let cloudSessions = try await supabase.fetchWorkoutSessions()
 
-                // Merge cloud sessions into local
+                // Merge cloud sessions into local (using saveSessionIfNotExists to prevent duplicates)
                 if let localStorage = localStorage {
-                    let localIds = Set(sessions.map { $0.id })
                     for cloudSession in cloudSessions {
-                        if !localIds.contains(cloudSession.id) {
-                            localStorage.saveSession(cloudSession)
-                        }
+                        localStorage.saveSessionIfNotExists(cloudSession)
                     }
                     // Reload after merge
                     sessions = localStorage.fetchSessionsForUser(userId)

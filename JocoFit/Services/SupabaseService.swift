@@ -156,6 +156,18 @@ final class SupabaseService {
             .execute()
     }
 
+    func deleteAllWorkoutTemplates() async throws {
+        guard let userId = await currentUserId else {
+            throw SupabaseError.notAuthenticated
+        }
+
+        try await client.database
+            .from("workout_templates")
+            .delete()
+            .eq("user_id", value: userId.uuidString)
+            .execute()
+    }
+
     func toggleTemplateFavorite(_ templateId: UUID, isFavorite: Bool) async throws {
         guard let userId = await currentUserId else {
             throw SupabaseError.notAuthenticated

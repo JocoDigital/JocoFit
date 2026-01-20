@@ -15,13 +15,19 @@ struct HomeView: View {
                     // Welcome Header
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Welcome back!")
+                            Text(authViewModel.isAuthenticated ? "Welcome back!" : "Welcome!")
                                 .font(.headline)
                                 .foregroundStyle(.secondary)
 
                             Text("Ready to work out?")
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
+
+                            if !authViewModel.isAuthenticated {
+                                Text("Sign in to back up your progress")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                         Spacer()
                     }
