@@ -222,32 +222,26 @@ struct RecentSessionRow: View {
             // Status indicator
             Circle()
                 .fill(session.completed ? Color.green : Color.orange)
-                .frame(width: 10, height: 10)
+                .frame(width: 8, height: 8)
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(session.workoutTitle)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-
-                Text(session.createdAt, format: .dateTime.month().day().hour().minute())
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+            Text(session.workoutTitle)
+                .font(.caption)
+                .lineLimit(1)
 
             Spacer()
 
-            VStack(alignment: .trailing, spacing: 2) {
-                Text("\(session.totalCompletedReps) reps")
-                    .font(.subheadline)
-
+            HStack(spacing: 8) {
                 Text(session.formattedTime)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text("•")
+                Text("\(session.totalCompletedReps) reps")
             }
+            .font(.caption)
+            .foregroundStyle(.secondary)
         }
-        .padding()
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
         .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 

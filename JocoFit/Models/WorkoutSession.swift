@@ -110,17 +110,38 @@ final class WorkoutSession {
 
     private func formatCustomWorkoutTitle(_ mode: String) -> String {
         // Format: custom_pull_ups_push_ups_sit_ups_full
-        var components = mode.replacingOccurrences(of: "custom_", with: "")
-            .components(separatedBy: "_")
+        let stripped = mode.replacingOccurrences(of: "custom_", with: "")
+        let allComponents = stripped.components(separatedBy: "_")
 
         // Last component is the progression mode
-        guard let progressionString = components.popLast(),
+        guard let progressionString = allComponents.last,
               let progression = ProgressionMode(rawValue: progressionString) else {
             return mode
         }
 
-        // Reconstruct exercise names
-        let exerciseNames = components.joined(separator: " ").capitalized
+        // Remove the progression mode from components
+        let exerciseComponents = allComponents.dropLast()
+
+        // Parse exercise names (they may be multi-word like "pull ups")
+        var exercises: [String] = []
+        var currentExercise: [String] = []
+
+        for component in exerciseComponents {
+            currentExercise.append(component)
+            // Check if this forms a complete exercise name
+            let potentialName = currentExercise.joined(separator: "_")
+            if Exercise.isValidExerciseIdentifier(potentialName) {
+                exercises.append(currentExercise.map { $0.capitalized }.joined(separator: " "))
+                currentExercise = []
+            }
+        }
+
+        // If there are leftover components, join them as the last exercise
+        if !currentExercise.isEmpty {
+            exercises.append(currentExercise.map { $0.capitalized }.joined(separator: " "))
+        }
+
+        let exerciseNames = exercises.joined(separator: ", ")
         return "\(exerciseNames) - \(progression.displayName)"
     }
 }

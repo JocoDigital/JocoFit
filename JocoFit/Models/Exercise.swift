@@ -52,6 +52,12 @@ struct Exercise: Identifiable, Codable, Hashable {
     var sanitizedName: String {
         name.lowercased().replacingOccurrences(of: " ", with: "_").replacingOccurrences(of: "-", with: "_")
     }
+
+    /// Check if a string matches a valid exercise identifier
+    static func isValidExerciseIdentifier(_ identifier: String) -> Bool {
+        let allExercises = Exercise.defaults
+        return allExercises.contains { $0.sanitizedName == identifier }
+    }
 }
 
 // MARK: - Exercise Collections

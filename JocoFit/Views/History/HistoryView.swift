@@ -245,61 +245,51 @@ struct HistorySessionCard: View {
     let session: WorkoutSession
 
     var body: some View {
-        VStack(spacing: 12) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 6) {
-                        Text(session.workoutTitle)
-                            .font(.headline)
+        VStack(alignment: .leading, spacing: 8) {
+            // Title and status row
+            HStack(alignment: .center, spacing: 6) {
+                Circle()
+                    .fill(session.completed ? Color.green : Color.orange)
+                    .frame(width: 8, height: 8)
 
-                        // Show sync status icon
-                        if !session.isSynced {
-                            Image(systemName: "icloud.slash")
-                                .font(.caption)
-                                .foregroundStyle(.orange)
-                        }
-                    }
+                Text(session.workoutTitle)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .lineLimit(1)
 
-                    Text(session.createdAt, format: .dateTime.month().day().year().hour().minute())
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                if !session.isSynced {
+                    Image(systemName: "icloud.slash")
+                        .font(.caption2)
+                        .foregroundStyle(.orange)
                 }
 
                 Spacer()
 
-                StatusBadge(completed: session.completed)
+                Text(session.completed ? "Done" : "Partial")
+                    .font(.caption2)
+                    .foregroundStyle(session.completed ? .green : .orange)
             }
 
-            HStack(spacing: 20) {
-                Label(session.formattedTime, systemImage: "clock")
-                Label("\(session.totalCompletedReps) reps", systemImage: "repeat")
-                Label("\(session.completedRounds) rounds", systemImage: "arrow.clockwise")
+            // Stats row
+            HStack {
+                Text(session.createdAt, format: .dateTime.month(.abbreviated).day())
+                    .foregroundStyle(.tertiary)
+
+                Spacer()
+
+                HStack(spacing: 10) {
+                    Label(session.formattedTime, systemImage: "clock")
+                    Label("\(session.totalCompletedReps)", systemImage: "repeat")
+                    Label("\(session.completedRounds)", systemImage: "arrow.clockwise")
+                }
+                .foregroundStyle(.secondary)
             }
             .font(.caption)
-            .foregroundStyle(.secondary)
-
-            // Progress bar
-            ProgressView(value: session.progressPercentage, total: 100)
-                .tint(session.completed ? .green : .orange)
         }
-        .padding()
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
         .background(Color.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-}
-
-struct StatusBadge: View {
-    let completed: Bool
-
-    var body: some View {
-        Text(completed ? "Completed" : "Partial")
-            .font(.caption)
-            .fontWeight(.medium)
-            .foregroundStyle(completed ? .green : .orange)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background((completed ? Color.green : Color.orange).opacity(0.1))
-            .clipShape(Capsule())
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 
